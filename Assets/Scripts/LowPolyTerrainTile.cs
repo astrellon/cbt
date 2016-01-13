@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Tile
+public class LowPolyTerrainTile
 {
     public float Height = 0f;
 
@@ -9,4 +9,6 @@ public class Tile
     {
         get { return (float)System.Math.Round((decimal)Height, 2, System.MidpointRounding.AwayFromZero); }
     }
+
+    public string Type = "grass";
 }
