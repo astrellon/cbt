@@ -5,7 +5,6 @@ using System.Collections.Generic;
 public class LowPolyTerrain : MonoBehaviour 
 {
     public LowPolyTerrainData TerrainData;
-    //public const float Size = 8.0f;
 
     public int Width = 50;
     public int Height = 50;
@@ -53,8 +52,6 @@ public class LowPolyTerrain : MonoBehaviour
                 TerrainData.SetTileType(x, y, anyBelow ? "sand" : "grass");
             } 
         }
-
-        TerrainData.CalcCornerHeights();
 
         CreateMesh();	
 
