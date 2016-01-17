@@ -5,10 +5,10 @@ using System.Collections.Generic;
 public class LowPolyTerrain : MonoBehaviour 
 {
     public LowPolyTerrainData TerrainData;
-    public const float Size = 8.0f;
+    //public const float Size = 8.0f;
 
-    public uint Width = 50;
-    public uint Height = 50;
+    public int Width = 50;
+    public int Height = 50;
     public float Depth = 32.0f;
     public float OffsetX = 0;
     public float OffsetY = 0;
@@ -38,32 +38,27 @@ public class LowPolyTerrain : MonoBehaviour
         {
             for (var x = 0; x < TerrainData.Width; x++)
             {
-                var height = Mathf.PerlinNoise(Size * (OffsetX + x) / 64.0f, Size * (OffsetY + y) / 64.0f) * Depth; 
-                height = Mathf.Round(height * 0.25f) * 4.0f;
-
                 var tile = TerrainData.GetTile(x, y);
-                tile.Height = height;
-                TerrainData.SetTileType(x, y, height < 10 ? "sand" : "grass");
+
+                var height1 = CalcHeight(tile.Corner1);
+                var height2 = CalcHeight(tile.Corner2);
+                var height3 = CalcHeight(tile.Corner3);
+
+                tile.SetCorner(height1, 0);
+                tile.SetCorner(height2, 1);
+                tile.SetCorner(height3, 2);
+                
+                var anyBelow = height1 < 0 || height2 < 0 || height3 < 0;
+
+                TerrainData.SetTileType(x, y, anyBelow ? "sand" : "grass");
             } 
         }
 
-        for (var y = 0; y < TerrainData.Height - 1; y++)
-        {
-            for (var x = 0; x < TerrainData.Width - 1; x++)
-            {
-                var blTile = TerrainData.GetTile(x, y);
-                var brTile = TerrainData.GetTile(x + 1, y);
-                var tlTile = TerrainData.GetTile(x, y + 1);
-                var trTile = TerrainData.GetTile(x + 1, y + 1);
-
-                var anyBelow = blTile.Height < 10 || brTile.Height < 10 || tlTile.Height < 10 || trTile.Height < 10;
-                TerrainData.SetTileType(x, y, anyBelow ? "sand" : "grass");
-            }
-        }
+        TerrainData.CalcCornerHeights();
 
         CreateMesh();	
 
-        transform.position = new Vector3(OffsetX * Size, 0, OffsetY * Size);
+        //transform.position = new Vector3(OffsetX * Size, 0, OffsetY * Size);
 	}
 
     void CreateMesh()
@@ -80,5 +75,11 @@ public class LowPolyTerrain : MonoBehaviour
             var tileRender = tileMesh.AddComponent<LowPolyTerrainTileRender>() as LowPolyTerrainTileRender;
             tileRender.CreateMesh(TerrainData, tileType, materialMap[tileType]);
         }
+    }
+
+    float CalcHeight(Vector3 position)
+    {
+        var height = Mathf.PerlinNoise((OffsetX + position.x) / 64.0f, (OffsetY + position.z) / 64.0f) * Depth; 
+        return Mathf.Round(height * 1.0f) * 1.0f  - Depth * 0.5f;
     }
 }

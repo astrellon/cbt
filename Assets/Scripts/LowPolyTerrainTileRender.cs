@@ -43,7 +43,7 @@ public class LowPolyTerrainTileRender : MonoBehaviour
                 var tile = terrainData.GetTile(x, y);
                 if (tile.Type == tileType)
                 {
-                    RenderTileTriangle2(x, y);
+                    RenderTileTriangle3(x, y);
                 }
             }
         }
@@ -113,6 +113,22 @@ public class LowPolyTerrainTileRender : MonoBehaviour
         }
     }
 
+    private void RenderTileTriangle3(int x, int y)
+    {
+        var tile = terrainData.GetTile(x, y);
+
+        var vi = verticies.Count;
+
+        verticies.Add(tile.Corner1); 
+        verticies.Add(tile.Corner2); 
+        verticies.Add(tile.Corner3); 
+        
+        for (var i = vi; i < vi + 3; i++)
+        {
+            triangles.Add(i);
+        }
+    }
+
     private void RenderTileTriangle2(int x, int y)
     {
         var isEven = ((x + y) % 2) == 0;
@@ -127,7 +143,6 @@ public class LowPolyTerrainTileRender : MonoBehaviour
             var tlHeight = HexHeight(x, y, x - 1, y);
             var trHeight = HexHeight(x, y, x + 1, y);
             var bHeight = HexHeight(x, y, x, y - 1);
-            //tlHeight = trHeight = bHeight = 0.0f;
 
             verticies.Add(new Vector3(xpos, tlHeight, ypos + TriHeight));
             verticies.Add(new Vector3(xpos + TriSize, trHeight, ypos + TriHeight));
@@ -138,7 +153,6 @@ public class LowPolyTerrainTileRender : MonoBehaviour
             var blHeight = HexHeight(x, y, x - 1, y - 1);
             var brHeight = HexHeight(x, y, x + 1, y - 1);
             var tHeight = HexHeight(x, y, x, y);
-            //blHeight = brHeight = tHeight = 0.0f;
         
             verticies.Add(new Vector3(xpos, blHeight, ypos));
             verticies.Add(new Vector3(xpos + TriHalfSize, tHeight, ypos + TriHeight));
@@ -153,7 +167,7 @@ public class LowPolyTerrainTileRender : MonoBehaviour
 
     private void RenderTileTriangle(int x, int y)
     {
-        var isEven = ((x + y * terrainData.Width) % 2) == 0;
+        var isEven = ((x + y) % 2) == 0;
 
         var vi = verticies.Count;
 
@@ -209,27 +223,17 @@ public class LowPolyTerrainTileRender : MonoBehaviour
 
     float HexHeight(int x, int y, int offsetX, int offsetY)
     {
-        var total = 0.0f;
-
         var defaultHeight = terrainData.GetTile(x, y).HeightCm;
         
-        /*
-        total += GetHeightOrDefault(offsetX - 1, offsetY - 1, defaultHeight);
-        total += GetHeightOrDefault(offsetX, offsetY - 1, defaultHeight);
-        total += GetHeightOrDefault(offsetX + 1, offsetY - 1, defaultHeight);
-        total += GetHeightOrDefault(offsetX - 1, offsetY, defaultHeight);
-        total += GetHeightOrDefault(offsetX, offsetY, defaultHeight);
-        total += GetHeightOrDefault(offsetX + 1, offsetY, defaultHeight);
-        */
-        total = VotedHeightHex(
-            GetHeightOrDefault(offsetX - 1, offsetY - 1, defaultHeight),
-            GetHeightOrDefault(offsetX, offsetY - 1, defaultHeight),
-            GetHeightOrDefault(offsetX + 1, offsetY - 1, defaultHeight),
-            GetHeightOrDefault(offsetX - 1, offsetY, defaultHeight),
-            GetHeightOrDefault(offsetX, offsetY, defaultHeight),
-            GetHeightOrDefault(offsetX + 1, offsetY, defaultHeight));
-
-        return total;
+        var height1 = GetHeightOrDefault(offsetX - 1, offsetY - 1, defaultHeight); 
+        var height2 = GetHeightOrDefault(offsetX, offsetY - 1, defaultHeight); 
+        var height3 = GetHeightOrDefault(offsetX + 1, offsetY - 1, defaultHeight);
+        var height4 = GetHeightOrDefault(offsetX - 1, offsetY, defaultHeight); 
+        var height5 = GetHeightOrDefault(offsetX, offsetY, defaultHeight);
+        var height6 = GetHeightOrDefault(offsetX + 1, offsetY, defaultHeight); 
+        //return VotedHeightHex(height1, height2, height3, height4, height5, height6);
+        return (height1 + height2 + height3 + height4 + height5 + height6) / 6.0f;
+        //return defaultHeight;
     }
     
     float VotedHeightHex(params float[] tiles)
