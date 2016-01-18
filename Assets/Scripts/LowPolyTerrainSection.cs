@@ -12,13 +12,6 @@ public class LowPolyTerrainSection : MonoBehaviour
     public float OffsetX = 0;
     public float OffsetY = 0;
 
-    [System.Serializable]
-    public struct MaterialPair
-    {
-        public string Name;
-        public Material Material;
-    }
-
     public MaterialPair[] Materials;
 
     public Dictionary<string, Material> materialMap = new Dictionary<string, Material>();
@@ -69,6 +62,7 @@ public class LowPolyTerrainSection : MonoBehaviour
         foreach (var tileType in TerrainData.TileTypes)
         {
             var tileMesh = new GameObject();
+            tileMesh.name = "mesh_" + tileType;
             tileMesh.transform.parent = transform;
             var tileRender = tileMesh.AddComponent<LowPolyTerrainTileRender>() as LowPolyTerrainTileRender;
             tileRender.CreateMesh(TerrainData, tileType, materialMap[tileType]);
