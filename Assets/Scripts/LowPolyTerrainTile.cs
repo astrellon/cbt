@@ -3,9 +3,10 @@ using System.Collections;
 
 public class LowPolyTerrainTile
 {
-    public static readonly float TriWidth = Mathf.Sqrt(3.0f);
+    public const float Size = 9.0f;
+    public static readonly float TriWidth = Mathf.Sqrt(3.0f) * Size;
     public static readonly float TriHalfWidth = TriWidth * 0.5f;
-    public static readonly float TriHeight = 1.5f;
+    public static readonly float TriHeight = 1.5f * Size;
 
     public static readonly LowPolyTerrainTile NullTile = new LowPolyTerrainTile(-1, -1);
 

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class LowPolyTerrain : MonoBehaviour 
+public class LowPolyTerrainSection : MonoBehaviour 
 {
     public LowPolyTerrainData TerrainData;
 
@@ -55,7 +55,7 @@ public class LowPolyTerrain : MonoBehaviour
 
         CreateMesh();	
 
-        //transform.position = new Vector3(OffsetX * Size, 0, OffsetY * Size);
+        transform.position = new Vector3(OffsetX * LowPolyTerrainTile.TriHalfWidth, 0, OffsetY * LowPolyTerrainTile.TriHeight);
 	}
 
     void CreateMesh()
@@ -69,6 +69,7 @@ public class LowPolyTerrain : MonoBehaviour
         foreach (var tileType in TerrainData.TileTypes)
         {
             var tileMesh = new GameObject();
+            tileMesh.transform.parent = transform;
             var tileRender = tileMesh.AddComponent<LowPolyTerrainTileRender>() as LowPolyTerrainTileRender;
             tileRender.CreateMesh(TerrainData, tileType, materialMap[tileType]);
         }
@@ -76,7 +77,10 @@ public class LowPolyTerrain : MonoBehaviour
 
     float CalcHeight(Vector3 position)
     {
-        var height = Mathf.PerlinNoise((OffsetX + position.x) / 64.0f, (OffsetY + position.z) / 64.0f) * Depth; 
-        return Mathf.Round(height * 1.0f) * 1.0f  - Depth * 0.5f;
+        var xpos = OffsetX * LowPolyTerrainTile.TriHalfWidth + position.x;
+        var ypos = OffsetY * LowPolyTerrainTile.TriHeight + position.z;
+        var subheight = Mathf.PerlinNoise(xpos / 512.0f, ypos / 512.0f) * Depth * 5.0f - Depth * 2.5f;
+        var height = Mathf.PerlinNoise(xpos / 128.0f, ypos / 128.0f) * Depth; 
+        return Mathf.Round(subheight + height * 0.5f) * 2.0f  - Depth * 0.4f;
     }
 }

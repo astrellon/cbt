@@ -27,12 +27,12 @@ public class LowPolyTerrainTileRender : MonoBehaviour
         triangles = new List<int>();
         this.terrainData = terrainData;
 
-        var width = terrainData.Width - 2;
-        var height = terrainData.Height - 2;
+        var width = terrainData.Width - 1;
+        var height = terrainData.Height - 1;
 
-        for (var y = 1; y < height; y++)
+        for (var y = 0; y < height; y++)
         {
-            for (var x = 1; x < width; x++)
+            for (var x = 0; x < width; x++)
             {
                 var tile = terrainData.GetTile(x, y);
                 if (tile.Type == tileType)
