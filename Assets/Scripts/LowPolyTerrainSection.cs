@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
+[ExecuteInEditMode]
 public class LowPolyTerrainSection : MonoBehaviour 
 {
     public LowPolyTerrainData TerrainData;
@@ -11,6 +12,7 @@ public class LowPolyTerrainSection : MonoBehaviour
     public float Depth = 32.0f;
     public float OffsetX = 0;
     public float OffsetY = 0;
+    public GameObject TreePrefab;
 
     public MaterialPair[] Materials;
 
@@ -40,8 +42,15 @@ public class LowPolyTerrainSection : MonoBehaviour
                 tile.SetCorner(height2, 1);
                 tile.SetCorner(height3, 2);
                 
-                var anyBelow = height1 < 0 || height2 < 0 || height3 < 0;
+                var anyBelow = height1 < 4 || height2 < 4 || height3 < 4;
+                var allAbove = height1 > 14 && height2 > 14 && height3 > 14;
 
+                if (allAbove)
+                {
+                    tile.HasTree = CalcHasTree(tile.Corner1);
+                    tile.TreeScale = CalcTreeScale(tile.Corner2);
+                    tile.TreeRotation = CalcTreeRotation(tile.Corner3);
+                }
                 TerrainData.SetTileType(x, y, anyBelow ? "sand" : "grass");
             } 
         }
@@ -65,6 +74,7 @@ public class LowPolyTerrainSection : MonoBehaviour
             tileMesh.name = "mesh_" + tileType;
             tileMesh.transform.parent = transform;
             var tileRender = tileMesh.AddComponent<LowPolyTerrainTileRender>() as LowPolyTerrainTileRender;
+            tileRender.TreePrefab = TreePrefab;
             tileRender.CreateMesh(TerrainData, tileType, materialMap[tileType]);
         }
     }
@@ -76,5 +86,26 @@ public class LowPolyTerrainSection : MonoBehaviour
         var subheight = Mathf.PerlinNoise(xpos / 512.0f, ypos / 512.0f) * Depth * 5.0f - Depth * 2.5f;
         var height = Mathf.PerlinNoise(xpos / 128.0f, ypos / 128.0f) * Depth; 
         return Mathf.Round(subheight + height * 0.5f) * 2.0f  - Depth * 0.4f;
+    }
+    bool CalcHasTree(Vector3 position)
+    {
+        var xpos = OffsetX * LowPolyTerrainTile.TriHalfWidth + position.x;
+        var ypos = OffsetY * LowPolyTerrainTile.TriHeight + position.z;
+
+        return Mathf.PerlinNoise(xpos, ypos) > 0.5f;
+    }
+    float CalcTreeScale(Vector3 position)
+    {
+        var xpos = OffsetX * LowPolyTerrainTile.TriHalfWidth + position.x;
+        var ypos = OffsetY * LowPolyTerrainTile.TriHeight + position.z;
+
+        return Mathf.PerlinNoise(xpos, ypos) * 5.0f + 5.0f;
+    }
+    float CalcTreeRotation(Vector3 position)
+    {
+        var xpos = OffsetX * LowPolyTerrainTile.TriHalfWidth + position.x;
+        var ypos = OffsetY * LowPolyTerrainTile.TriHeight + position.z;
+
+        return Mathf.PerlinNoise(xpos, ypos) * 360.0f;
     }
 }

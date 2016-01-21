@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[ExecuteInEditMode]
 public class LowPolyTerrainTile
 {
     public const float Size = 9.0f;
@@ -18,6 +19,10 @@ public class LowPolyTerrainTile
 
     public readonly Vector2 Position;
     public readonly bool IsEven;
+
+    public bool HasTree = false;
+    public float TreeScale = 1.0f;
+    public float TreeRotation = 0.0f;
 
     public string Type = "grass";
 
