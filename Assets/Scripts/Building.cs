@@ -1,19 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Building : MonoBehaviour 
+[System.Serializable]
+public class Building
 {
-    public Vector2 TilePosition;
+    //public Vector2 TilePosition;
+    public int PositionX;
+    public int PositionY;
 
-    // Use this for initialization
-    void Start () 
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update () 
-    {
-
-    }
+    public string Type = "road";
 }

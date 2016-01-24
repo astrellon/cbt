@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[ExecuteInEditMode]
 public class LowPolyTerrainTile
 {
     public const float Size = 9.0f;
