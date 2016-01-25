@@ -2,15 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 
-[ExecuteInEditMode]
 public class LowPolyTerrainTileRender : MonoBehaviour 
 {
     private List<Vector3> verticies;
     private List<Vector2> uvs;
     private List<int> triangles;
     private LowPolyTerrainData terrainData;
-    public GameObject TreePrefab;
-    private GameObject TreeParent;
 
 	// Use this for initialization
 	void Start () 
@@ -22,10 +19,6 @@ public class LowPolyTerrainTileRender : MonoBehaviour
         var meshFilter = gameObject.AddComponent<MeshFilter>();
         var meshCollider = gameObject.AddComponent<MeshCollider>();
         var meshRenderer = gameObject.AddComponent<MeshRenderer>();
-
-        TreeParent = new GameObject();
-        TreeParent.name = "TreeParent";
-        TreeParent.transform.parent = transform;
 
         meshRenderer.material = material;
 
@@ -75,25 +68,5 @@ public class LowPolyTerrainTileRender : MonoBehaviour
         {
             triangles.Add(i);
         }
-
-        if (tile.HasTree)
-        {
-            AddTree(tile);
-        }
-    }
-
-    private void AddTree(LowPolyTerrainTile tile)
-    {
-        if (TreePrefab == null)
-        {
-            return;
-        }
-
-        var center = (tile.Corner1 + tile.Corner2 + tile.Corner3) / 3.0f;
-
-        var newTree = Instantiate(TreePrefab, center, Quaternion.identity) as GameObject;
-        newTree.transform.localScale = Vector3.one * tile.TreeScale;
-        newTree.transform.localEulerAngles = new Vector3(0, tile.TreeRotation, 0);
-        newTree.transform.parent = TreeParent.transform;
     }
 }
