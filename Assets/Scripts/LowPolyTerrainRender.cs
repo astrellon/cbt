@@ -22,6 +22,11 @@ public class LowPolyTerrainRender : MonoBehaviour
         {
             Terrain.Init(TerrainData);
         }
+
+        var buildingObj = new GameObject();
+        var buildingRender = buildingObj.AddComponent<BuildingRender>();
+        buildingRender.Init(TerrainData);
+        buildingObj.transform.parent = transform;
     }
 	
 	// Update is called once per frame

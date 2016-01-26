@@ -2,27 +2,41 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class BuildingRender : MonoBehaviour {
-
+public class BuildingRender : MonoBehaviour 
+{
+    private LowPolyTerrainData TerrainData;
     public Building Building;
+
     private static int[] triangles = new int[]{ 0, 1, 2  };
 
 	// Use this for initialization
-	void Start () {
-	
+	void Start () 
+    {
+
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update () 
+    {
 	
 	}
 
-    void CreateMesh(LowPolyTerrainData terrainData)
+    public void Init(LowPolyTerrainData terrainData)
+    {
+	    Building = new Building();
+        Building.PositionX = 2;
+        Building.PositionY = 2;
+        //Building = building;
+        TerrainData = terrainData;
+        CreateMesh();
+    }
+
+    void CreateMesh()
     {
         var meshFilter = gameObject.AddComponent<MeshFilter>();
         var meshRenderer = gameObject.AddComponent<MeshRenderer>();
 
-        var tile = terrainData.GetTile(Building.PositionX, Building.PositionY);
+        var tile = TerrainData.GetTile(Building.PositionX, Building.PositionY);
 
         var offset = new Vector3(0.0f, 0.2f, 0.0f);
 
