@@ -4,8 +4,10 @@ using System.Collections.Generic;
 
 public class BuildingRender : MonoBehaviour 
 {
-    private LowPolyTerrainData TerrainData;
+    public GameMap Map;
     public Building Building;
+
+    public Dictionary<string, Material> MaterialMap;
 
     private static int[] triangles = new int[]{ 0, 1, 2  };
 
@@ -21,13 +23,10 @@ public class BuildingRender : MonoBehaviour
 	
 	}
 
-    public void Init(LowPolyTerrainData terrainData)
+    public void Init(GameMap map, Building building)
     {
-	    Building = new Building();
-        Building.PositionX = 2;
-        Building.PositionY = 2;
-        //Building = building;
-        TerrainData = terrainData;
+        Map = map;
+        Building = building;
         CreateMesh();
     }
 
@@ -36,7 +35,13 @@ public class BuildingRender : MonoBehaviour
         var meshFilter = gameObject.AddComponent<MeshFilter>();
         var meshRenderer = gameObject.AddComponent<MeshRenderer>();
 
-        var tile = TerrainData.GetTile(Building.PositionX, Building.PositionY);
+        Material material;
+        if (MaterialMap.TryGetValue(Building.Type, out material))
+        {
+            meshRenderer.material = material;
+        }
+
+        var tile = Map.TerrainData.GetTile(Building.PositionX, Building.PositionY);
 
         var offset = new Vector3(0.0f, 0.2f, 0.0f);
 
@@ -52,7 +57,5 @@ public class BuildingRender : MonoBehaviour
         mesh.triangles = triangles;
         mesh.Optimize();
         mesh.RecalculateNormals();
-
-
     }
 }
