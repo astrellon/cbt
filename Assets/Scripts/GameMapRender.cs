@@ -34,6 +34,7 @@ public class GameMapRender : MonoBehaviour
         building = new Building();
         building.PositionX = 5;
         building.PositionY = 2;
+        building.Type = "house";
         Map.Buildings.Add(building);
         Init(Map);
     }
