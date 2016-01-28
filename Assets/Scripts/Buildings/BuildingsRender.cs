@@ -2,24 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class BuildingsRender : MonoBehaviour {
-
+public class BuildingsRender : MonoBehaviour 
+{
     public GameMap Map;
 
     public MaterialPair[] Materials;
     public Dictionary<string, Material> MaterialMap = new Dictionary<string, Material>();
 
-	// Use this for initialization
-	void Start () 
-    {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () 
-    {
-	
-	}
+    public GameObjectPair[] Prefabs;
+    public Dictionary<string, GameObject> PrefabMap = new Dictionary<string, GameObject>();
 
     public void Init(GameMap map)
     {
@@ -28,6 +19,10 @@ public class BuildingsRender : MonoBehaviour {
         foreach (var pair in Materials)
         {
             MaterialMap[pair.Name] = pair.Material;
+        }
+        foreach (var pair in Prefabs)
+        {
+            PrefabMap[pair.Name] = pair.Object;
         }
 
         foreach (var building in Map.Buildings)
@@ -41,8 +36,7 @@ public class BuildingsRender : MonoBehaviour {
         var buildingObj = new GameObject();
         buildingObj.transform.parent = transform;
 
-        var buildingScript = buildingObj.AddComponent<BuildingRender>();
-        buildingScript.MaterialMap = MaterialMap;
-        buildingScript.Init(Map, building);
+        var script = BuildingRenderFactory.GetBuildingRender(buildingObj, Map, building);
+        script.Render(this);
     }
 }

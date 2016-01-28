@@ -71,4 +71,8 @@ public class LowPolyTerrainTile
 
         return Vector3.zero;
     }
+    public Vector3 Center
+    {
+        get { return (Corner1 + Corner2 + Corner3) * 0.333333333f; }
+    }
 }
