@@ -7,7 +7,7 @@ public class BuildingRoadRender : MonoBehaviour, IBuildingRender
     public GameMap Map;
     public Building Building;
 
-    public static int[] Triangles = new int[]{ 0, 1, 2  };
+    public static Vector3 Offset = new Vector3(0.0f, 0.2f, 0.0f);
 
     public void Init(GameMap map, Building building)
     {
@@ -25,21 +25,26 @@ public class BuildingRoadRender : MonoBehaviour, IBuildingRender
         {
             meshRenderer.material = material;
         }
-
-        var tile = Map.TerrainData.GetTile(Building.PositionX, Building.PositionY);
-
-        var offset = new Vector3(0.0f, 0.2f, 0.0f);
-
+        
         var verticies = new List<Vector3>();
-        verticies.Add(tile.Corner1 + offset);
-        verticies.Add(tile.Corner2 + offset);
-        verticies.Add(tile.Corner3 + offset);
+        var triangles = new List<int>();
 
+        foreach (var position in Building.Positions)
+        {
+            var tile = Map.TerrainData.GetTile(position.x, position.y);
+
+            verticies.Add(tile.Corner1 + Offset);
+            verticies.Add(tile.Corner2 + Offset);
+            verticies.Add(tile.Corner3 + Offset);
+
+            triangles.Add(triangles.Count);
+            triangles.Add(triangles.Count);
+            triangles.Add(triangles.Count);
+        }
         var mesh = new Mesh();
         meshFilter.mesh = mesh;
-
         mesh.vertices = verticies.ToArray();
-        mesh.triangles = Triangles;
+        mesh.triangles = triangles.ToArray();
         mesh.Optimize();
         mesh.RecalculateNormals();
     }

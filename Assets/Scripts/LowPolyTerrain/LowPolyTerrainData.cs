@@ -46,6 +46,7 @@ public class LowPolyTerrainData
     public static LowPolyTerrainData GetRandomMap()
     {
         var result = new LowPolyTerrainData(111, 111);
+        const float Depth = 30;
 
         for (var y = 0; y < result.Height; y++)
         {
@@ -53,9 +54,9 @@ public class LowPolyTerrainData
             {
                 var tile = result.GetTile(x, y);
 
-                var height1 = CalcHeight(result, tile.Corner1, 50);
-                var height2 = CalcHeight(result, tile.Corner2, 50);
-                var height3 = CalcHeight(result, tile.Corner3, 50);
+                var height1 = CalcHeight(result, tile.Corner1, Depth);
+                var height2 = CalcHeight(result, tile.Corner2, Depth);
+                var height3 = CalcHeight(result, tile.Corner3, Depth);
 
                 tile.SetCorner(height1, 0);
                 tile.SetCorner(height2, 1);

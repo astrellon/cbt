@@ -17,24 +17,39 @@ public class GameMapRender : MonoBehaviour
         Map.TerrainData = LowPolyTerrainData.GetRandomMap();
 
         var building = new Building();
-        building.PositionX = 2;
-        building.PositionY = 2;
+        building.Positions.Add(new Vector2Int(6, 1));
+        building.Positions.Add(new Vector2Int(7, 1));
+        building.Positions.Add(new Vector2Int(8, 1));
+        building.Positions.Add(new Vector2Int(9, 1));
+        building.Positions.Add(new Vector2Int(10, 1));
+        building.Positions.Add(new Vector2Int(11, 1));
+        building.Positions.Add(new Vector2Int(12, 1));
+        building.Positions.Add(new Vector2Int(13, 1));
+        building.Positions.Add(new Vector2Int(14, 1));
+        building.Positions.Add(new Vector2Int(11, 2));
+        building.Positions.Add(new Vector2Int(12, 2));
+        building.Positions.Add(new Vector2Int(12, 3));
+        building.Positions.Add(new Vector2Int(13, 3));
+        building.Positions.Add(new Vector2Int(13, 4));
+        building.Positions.Add(new Vector2Int(14, 4));
+        building.Positions.Add(new Vector2Int(14, 5));
+        building.Positions.Add(new Vector2Int(15, 5));
+        building.RemoveTrees(Map.TerrainData);
         Map.Buildings.Add(building);
         
         building = new Building();
-        building.PositionX = 3;
-        building.PositionY = 2;
-        Map.Buildings.Add(building);
-        
-        building = new Building();
-        building.PositionX = 4;
-        building.PositionY = 2;
-        Map.Buildings.Add(building);
-        
-        building = new Building();
-        building.PositionX = 5;
-        building.PositionY = 2;
+        building.Positions.Add(new Vector2Int(6, 2));
+        building.Positions.Add(new Vector2Int(7, 2));
+        building.Positions.Add(new Vector2Int(8, 2));
+        building.Positions.Add(new Vector2Int(9, 2));
+        building.Positions.Add(new Vector2Int(10, 2));
+        building.Positions.Add(new Vector2Int(6, 3));
+        building.Positions.Add(new Vector2Int(7, 3));
+        building.Positions.Add(new Vector2Int(8, 3));
+        building.Positions.Add(new Vector2Int(9, 3));
+        building.Positions.Add(new Vector2Int(10, 3));
         building.Type = "house";
+        building.RemoveTrees(Map.TerrainData);
         Map.Buildings.Add(building);
         Init(Map);
     }
