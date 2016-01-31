@@ -49,7 +49,7 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
         {
             var tile = Map.TerrainData.GetTile(position.x, position.y);
 
-            RenderFloor(tile);
+            RenderFloor(tile, highest, false);
 
             var surrounded = true;
             for (var i = 0; i < 3; i++)
@@ -58,13 +58,16 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
                 if (!Building.HasPosition(edgePosition))
                 {
                     surrounded = false;
-                    RenderDownwall(tile, i);
+                    RenderDownwall(tile, highest, highest - 1.0f, i);
                 }
             }
+            
+            RenderFloor(tile, highest - 1.0f, true);
 
             if (!surrounded)
             {
-                RenderPillar(prefab, tile);
+                RenderPillar(prefab, tile, highest, false);
+                RenderPillar(prefab, tile, highest - 1.0f, true, highest - lowest);
             }
         }
 
@@ -86,35 +89,43 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
         return new Vector3(input.x, highest, input.z);
     }
 
-    private void RenderFloor(LowPolyTerrainTile tile)
+    private void RenderFloor(LowPolyTerrainTile tile, float height, bool swapOrder)
     {
-        vertices.Add(MatchHighest(tile.Corner1, highest));
-        vertices.Add(MatchHighest(tile.Corner2, highest));
-        vertices.Add(MatchHighest(tile.Corner3, highest));
+        vertices.Add(MatchHighest(tile.Corner1, height));
+
+        var corner2 = MatchHighest(tile.Corner2, height);
+        var corner3 = MatchHighest(tile.Corner3, height);
+        vertices.Add(swapOrder ? corner3 : corner2);
+        vertices.Add(swapOrder ? corner2 : corner3);
 
         triangles.Add(triangles.Count);
         triangles.Add(triangles.Count);
         triangles.Add(triangles.Count);
     }
 
-    private void RenderPillar(GameObject prefab, LowPolyTerrainTile tile)
+    private void RenderPillar(GameObject prefab, LowPolyTerrainTile tile, float height, bool rotateDownwards, float heightScale = 1.0f)
     {
         var newObj = Instantiate(prefab);
         newObj.transform.parent = transform;
-        newObj.transform.localPosition = MatchHighest(tile.Center, highest);
+        newObj.transform.localPosition = MatchHighest(tile.Center, height);
+        if (rotateDownwards)
+        {
+            newObj.transform.Rotate(180, 0, 0);
+        }
+        newObj.transform.localScale = new Vector3(1.0f, heightScale, 1.0f);
     }
 
-    private void RenderDownwall(LowPolyTerrainTile tile, int edge)
+    private void RenderDownwall(LowPolyTerrainTile tile, float upper, float lower, int edge)
     {
         var edgePair = tile.GetEdgeCorners(edge);
 
-        vertices.Add(MatchHighest(edgePair.V1, highest));
-        vertices.Add(MatchHighest(edgePair.V1, lowest));
-        vertices.Add(MatchHighest(edgePair.V2, highest));
+        vertices.Add(MatchHighest(edgePair.V1, upper));
+        vertices.Add(MatchHighest(edgePair.V1, lower));
+        vertices.Add(MatchHighest(edgePair.V2, upper));
         
-        vertices.Add(MatchHighest(edgePair.V2, highest));
-        vertices.Add(MatchHighest(edgePair.V1, lowest));
-        vertices.Add(MatchHighest(edgePair.V2, lowest));
+        vertices.Add(MatchHighest(edgePair.V2, upper));
+        vertices.Add(MatchHighest(edgePair.V1, lower));
+        vertices.Add(MatchHighest(edgePair.V2, lower));
 
         for (var i = 0; i < 6; i++)
         {
