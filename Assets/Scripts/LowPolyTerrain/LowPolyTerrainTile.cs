@@ -16,7 +16,7 @@ public class LowPolyTerrainTile
     public Vector3 Corner2;
     public Vector3 Corner3;
 
-    public readonly Vector2 Position;
+    public readonly Vector2Int Position;
     public readonly bool IsEven;
 
     public bool HasTree = false;
@@ -27,7 +27,7 @@ public class LowPolyTerrainTile
 
     public LowPolyTerrainTile(int x, int y)
     {
-        Position = new Vector2(x, y);
+        Position = new Vector2Int(x, y);
         IsEven = ((x + y) % 2) == 0;
 
         var xpos = x * TriHalfWidth;
@@ -74,5 +74,32 @@ public class LowPolyTerrainTile
     public Vector3 Center
     {
         get { return (Corner1 + Corner2 + Corner3) * 0.333333333f; }
+    }
+
+    public Vector2Int GetEdgePosition(int edge)
+    {
+        if (IsEven)
+        {
+            if (edge == 0) return new Vector2Int(Position.x, Position.y + 1);
+            if (edge == 1) return new Vector2Int(Position.x + 1, Position.y);
+            if (edge == 2) return new Vector2Int(Position.x - 1, Position.y);
+        }
+        else
+        {
+            if (edge == 0) return new Vector2Int(Position.x - 1, Position.y);
+            if (edge == 1) return new Vector2Int(Position.x + 1, Position.y);
+            if (edge == 2) return new Vector2Int(Position.x, Position.y - 1);
+        }
+
+        return Vector2Int.Zero;
+    }
+
+    public Vector3Pair GetEdgeCorners(int edge)
+    {
+        if (edge == 0) return new Vector3Pair(Corner1, Corner2);
+        if (edge == 1) return new Vector3Pair(Corner2, Corner3);
+        if (edge == 2) return new Vector3Pair(Corner3, Corner1);
+
+        return new Vector3Pair(Vector3.zero, Vector3.zero);
     }
 }
