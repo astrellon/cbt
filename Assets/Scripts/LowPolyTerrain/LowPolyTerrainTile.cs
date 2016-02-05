@@ -71,6 +71,10 @@ public class LowPolyTerrainTile
 
         return Vector3.zero;
     }
+    public Vector3 GetCornerLerp(int corner1, int corner2, float amount)
+    {
+        return Vector3.Lerp(GetCorner(corner1), GetCorner(corner2), amount);
+    }
     public Vector3 Center
     {
         get { return (Corner1 + Corner2 + Corner3) * 0.333333333f; }
@@ -94,11 +98,20 @@ public class LowPolyTerrainTile
         return Vector2Int.Zero;
     }
 
-    public Vector3Pair GetEdgeCorners(int edge)
+    public Vector3Pair GetEdgeCorners(int edge, float offset = 0.0f)
     {
-        if (edge == 0) return new Vector3Pair(Corner1, Corner2);
-        if (edge == 1) return new Vector3Pair(Corner2, Corner3);
-        if (edge == 2) return new Vector3Pair(Corner3, Corner1);
+        if (offset == 0.0f)
+        {
+            if (edge == 0) return new Vector3Pair(Corner1, Corner2);
+            if (edge == 1) return new Vector3Pair(Corner2, Corner3);
+            if (edge == 2) return new Vector3Pair(Corner3, Corner1);
+        }
+        else
+        {
+            if (edge == 0) return new Vector3Pair(GetCornerLerp(0, 2, offset), GetCornerLerp(1, 2, offset));
+            if (edge == 1) return new Vector3Pair(GetCornerLerp(1, 0, offset), GetCornerLerp(2, 0, offset));
+            if (edge == 2) return new Vector3Pair(GetCornerLerp(2, 1, offset), GetCornerLerp(0, 1, offset));
+        }
 
         return new Vector3Pair(Vector3.zero, Vector3.zero);
     }

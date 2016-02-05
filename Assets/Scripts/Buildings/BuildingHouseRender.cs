@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-
+  
 public class BuildingHouseRender : MonoBehaviour, IBuildingRender 
 {
     public GameMap Map;
@@ -18,6 +19,66 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
     {
         Map = map;
         Building = building;
+
+        /*
+        var co = new ClipperLib.ClipperOffset();
+        var input = new List<ClipperLib.IntPoint>();
+        input.Add(new ClipperLib.IntPoint(0, 0));
+        input.Add(new ClipperLib.IntPoint(2000, 3500));
+        input.Add(new ClipperLib.IntPoint(6000, 3500));
+        input.Add(new ClipperLib.IntPoint(8000, 0));
+        input.Add(new ClipperLib.IntPoint(4000, 0));
+        input.Add(new ClipperLib.IntPoint(10000, 3500));
+        input.Add(new ClipperLib.IntPoint(12000, 0));
+        input.Add(new ClipperLib.IntPoint(0, 0));
+        co.AddPath(input, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etClosedPolygon);
+
+        foreach (var intPoint in input)
+        {
+            var point = new Vector3((float)intPoint.X / 1000.0f, 0, (float)intPoint.Y / 1000.0f);
+            Debug.DrawLine(point, point + Vector3.up * 5, Color.red, 100.0f);
+        }
+        
+        var result = new List<List<ClipperLib.IntPoint>>();
+        co.Execute(ref result, 1000);
+        
+        foreach (var path in result)
+        {
+            foreach (var intPoint in path)
+            {
+                var point = new Vector3((float)intPoint.X / 1000.0f, 0, (float)intPoint.Y / 1000.0f);
+                Debug.DrawLine(point, point + Vector3.up * 5, Color.cyan, 100.0f);
+            }
+        }
+        */
+
+        /*
+        var input = new List<Vector3Pair>();
+        input.Add(new Vector3Pair(new Vector3(0, 0, 0), new Vector3(2.0f, 0, 3.5f)));
+        input.Add(new Vector3Pair(new Vector3(4.0f, 0, 0.0f), new Vector3(0, 0, 0)));
+        input.Add(new Vector3Pair(new Vector3(2.0f, 0, 3.5f), new Vector3(6, 0, 3.5f)));
+        input.Add(new Vector3Pair(new Vector3(6.0f, 0, 3.5f), new Vector3(4, 0, 0)));
+        var soup = new PolygonSoup();
+        
+        foreach (var pair in input)
+        {
+            Debug.DrawLine(pair.V1, pair.V1 + Vector3.up * 5, Color.red, 100.0f);
+            Debug.DrawLine(pair.V2, pair.V2 + Vector3.up * 5, Color.red, 100.0f);
+        }
+
+        soup.AddPairs(input);
+        var orderedPoints = soup.GetAllOrderedPairs();
+
+        var count = 0;
+        foreach (var points in orderedPoints)
+        {
+            foreach (var point in points)
+            {
+                Debug.DrawLine(point, point - Vector3.up * count * 2, Color.cyan, 100.0f);
+                count++;
+            }
+        }
+        */
     }
 
     public void Render(BuildingsRender buildingsRender)
@@ -45,6 +106,10 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
         highest = Building.GetHighestPoint(Map.TerrainData) + 0.2f;
         lowest = Building.GetLowestPoint(Map.TerrainData) - 0.2f;
 
+        //var wallPath = new List<lipperLib.IntPoint>();
+        //var wallSoup = new PolygonSoup();
+        var buildingWall = new BuildingWalls();
+
         foreach (var position in Building.Positions)
         {
             var tile = Map.TerrainData.GetTile(position.x, position.y);
@@ -57,8 +122,14 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
                 var edgePosition = tile.GetEdgePosition(i);
                 if (!Building.HasPosition(edgePosition))
                 {
+                    var edgePoints = tile.GetEdgeCorners(i);
+                    buildingWall.Edges.AddPair(edgePoints);
+                    //Debug.DrawLine(edgePoints.V1, edgePoints.V2, Color.red, 100.0f);
+
                     surrounded = false;
                     RenderDownwall(tile, highest, highest - 1.0f, i);
+                    //RenderUpwardWall(tile, 0.0f, highest + 4.0f, highest, i, false);
+                    //RenderUpwardWall(tile, 0.0f, highest + 4.0f, highest, i, true);
                 }
             }
             
@@ -68,6 +139,28 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
             {
                 RenderPillar(prefab, tile, highest, false);
                 RenderPillar(prefab, tile, highest - 1.0f, true, highest - lowest);
+            }
+        }
+
+        buildingWall.OffsetWalls(-2.0f, highest);
+        RenderPoints(buildingWall.Points, true);
+
+        foreach (var path in buildingWall.Points)
+        {
+            for (var i = 0; i < path.Count - 1; i++)
+            {
+                vertices.Add(path[i]);
+                vertices.Add(path[i] + Vector3.up * 4);
+                vertices.Add(path[i + 1]);
+                
+                vertices.Add(path[i + 1]);
+                vertices.Add(path[i] + Vector3.up * 4);
+                vertices.Add(path[i + 1] + Vector3.up * 4);
+
+                for (var t = 0; t < 6; t ++)
+                {
+                    triangles.Add(triangles.Count);
+                }
             }
         }
 
@@ -130,6 +223,180 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
         for (var i = 0; i < 6; i++)
         {
             triangles.Add(triangles.Count);
+        }
+    }
+    
+    private void RenderUpwardWall(LowPolyTerrainTile tile, float offset, float upper, float lower, int edge, bool swapOrder)
+    {
+        var edgePair = tile.GetEdgeCorners(edge, offset);
+
+        vertices.Add(MatchHighest(swapOrder ? edgePair.V2 : edgePair.V1, upper));
+        vertices.Add(MatchHighest(swapOrder ? edgePair.V2 : edgePair.V1, lower));
+        vertices.Add(MatchHighest(swapOrder ? edgePair.V1 : edgePair.V2, upper));
+        
+        vertices.Add(MatchHighest(swapOrder ? edgePair.V1 : edgePair.V2, upper));
+        vertices.Add(MatchHighest(swapOrder ? edgePair.V2 : edgePair.V1, lower));
+        vertices.Add(MatchHighest(swapOrder ? edgePair.V1 : edgePair.V2, lower));
+
+        for (var i = 0; i < 6; i++)
+        {
+            triangles.Add(triangles.Count);
+        }
+    }
+
+    private void RenderPoints(List<List<Vector3>> points, bool backwards)
+    {
+        foreach (var path in points)
+        {
+            if (backwards)
+            {
+                for (var i = path.Count - 1; i > 0; i--)
+                {
+                    RenderPointPair(path[i], path[i - 1], Vector3.up * 4);
+                }
+
+                RenderPointPair(path.First(), path.Last(), Vector3.up * 4);
+            }
+            else
+            {
+                for (var i = 0; i < path.Count - 1; i++)
+                {
+                    RenderPointPair(path[i], path[i + 1], Vector3.up * 4);
+                }
+
+                RenderPointPair(path.Last(), path.First(), Vector3.up * 4);
+            }
+        }
+    }
+
+    private void RenderPointPair(Vector3 first, Vector3 second, Vector3 offset)
+    {
+        vertices.Add(first);
+        vertices.Add(first + offset);
+        vertices.Add(second);
+
+        vertices.Add(second);
+        vertices.Add(first + offset);
+        vertices.Add(second + offset);
+
+        for (var t = 0; t < 6; t ++)
+        {
+            triangles.Add(triangles.Count);
+        }
+    }
+
+    private static ClipperLib.IntPoint CreateIntPoint(Vector3 position)
+    {
+        var scaled = position * 1000.0f;
+        return new ClipperLib.IntPoint(scaled.x, scaled.z);
+    }
+
+    public class PolygonSoup
+    {
+        public List<Vector3Pair> Pairs = new List<Vector3Pair>();
+
+        public void AddPair(Vector3Pair pair)
+        {
+            Pairs.Add(pair);
+        }
+        public void AddPairs(List<Vector3Pair> pairs)
+        {
+            Pairs.AddRange(pairs);
+        }
+
+        public List<List<Vector3>> GetAllOrderedPoints()
+        {
+            var result = new List<List<Vector3>>();
+
+            while (Pairs.Count > 0)
+            {
+                result.Add(GetOrderedPairs());
+            }
+
+            return result;
+        }
+        public List<List<ClipperLib.IntPoint>> GetAllOrderedIntPoints()
+        {
+            var orderedPoints = GetAllOrderedPoints();
+
+            var result = new List<List<ClipperLib.IntPoint>>();
+
+            foreach (var points in orderedPoints)
+            {
+                var resultPoints = new List<ClipperLib.IntPoint>();
+                result.Add(resultPoints);
+                foreach (var point in points)
+                {
+                    resultPoints.Add(new ClipperLib.IntPoint(point.x * 1000.0f, point.z * 1000.0f));
+                }
+            }
+
+            return result;
+        }
+
+        private Vector3Pair PopPair()
+        {
+            var result = Pairs[Pairs.Count - 1];
+            Pairs.RemoveAt(Pairs.Count - 1);
+            return result;
+        }
+
+        private List<Vector3> GetOrderedPairs()
+        {
+            var result = new List<Vector3>();
+            var start = PopPair();
+            result.Add(start.V1);
+            result.Add(start.V2);
+
+            var currentPoint = start.V2;
+            var foundConnectingPoint = true;
+            while (foundConnectingPoint)
+            {
+                foundConnectingPoint = FindConnectingPoint(currentPoint, ref currentPoint);
+                if (foundConnectingPoint)
+                {
+                    result.Add(currentPoint);
+                }
+            }
+
+            return result;
+        }
+
+        private bool FindConnectingPoint(Vector3 point, ref Vector3 result)
+        {
+            for (var i = 0; i < Pairs.Count; i++)
+            {
+                var pair = Pairs[i];
+                if (pair.V1 == point)
+                {
+                    result = pair.V2;
+                    Pairs.RemoveAt(i);
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    public class BuildingWalls
+    {
+        public PolygonSoup Edges = new PolygonSoup();
+
+        public List<List<Vector3>> Points;
+
+        public void OffsetWalls(float amount, float height)
+        {
+            var orderedPoints = Edges.GetAllOrderedIntPoints();
+            var co = new ClipperLib.ClipperOffset();
+            co.AddPaths(orderedPoints, ClipperLib.JoinType.jtSquare, ClipperLib.EndType.etClosedPolygon);
+
+            var results = new List<List<ClipperLib.IntPoint>>();
+            co.Execute(ref results, (int)(amount * 1000.0f));
+
+            Points = results.Select(
+                    xs => xs.Select(
+                        x => new Vector3((float)x.X / 1000.0f, height, (float)x.Y / 1000.0f)).ToList()).ToList();
+
         }
     }
 }
