@@ -19,66 +19,6 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
     {
         Map = map;
         Building = building;
-
-        /*
-        var co = new ClipperLib.ClipperOffset();
-        var input = new List<ClipperLib.IntPoint>();
-        input.Add(new ClipperLib.IntPoint(0, 0));
-        input.Add(new ClipperLib.IntPoint(2000, 3500));
-        input.Add(new ClipperLib.IntPoint(6000, 3500));
-        input.Add(new ClipperLib.IntPoint(8000, 0));
-        input.Add(new ClipperLib.IntPoint(4000, 0));
-        input.Add(new ClipperLib.IntPoint(10000, 3500));
-        input.Add(new ClipperLib.IntPoint(12000, 0));
-        input.Add(new ClipperLib.IntPoint(0, 0));
-        co.AddPath(input, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etClosedPolygon);
-
-        foreach (var intPoint in input)
-        {
-            var point = new Vector3((float)intPoint.X / 1000.0f, 0, (float)intPoint.Y / 1000.0f);
-            Debug.DrawLine(point, point + Vector3.up * 5, Color.red, 100.0f);
-        }
-        
-        var result = new List<List<ClipperLib.IntPoint>>();
-        co.Execute(ref result, 1000);
-        
-        foreach (var path in result)
-        {
-            foreach (var intPoint in path)
-            {
-                var point = new Vector3((float)intPoint.X / 1000.0f, 0, (float)intPoint.Y / 1000.0f);
-                Debug.DrawLine(point, point + Vector3.up * 5, Color.cyan, 100.0f);
-            }
-        }
-        */
-
-        /*
-        var input = new List<Vector3Pair>();
-        input.Add(new Vector3Pair(new Vector3(0, 0, 0), new Vector3(2.0f, 0, 3.5f)));
-        input.Add(new Vector3Pair(new Vector3(4.0f, 0, 0.0f), new Vector3(0, 0, 0)));
-        input.Add(new Vector3Pair(new Vector3(2.0f, 0, 3.5f), new Vector3(6, 0, 3.5f)));
-        input.Add(new Vector3Pair(new Vector3(6.0f, 0, 3.5f), new Vector3(4, 0, 0)));
-        var soup = new PolygonSoup();
-        
-        foreach (var pair in input)
-        {
-            Debug.DrawLine(pair.V1, pair.V1 + Vector3.up * 5, Color.red, 100.0f);
-            Debug.DrawLine(pair.V2, pair.V2 + Vector3.up * 5, Color.red, 100.0f);
-        }
-
-        soup.AddPairs(input);
-        var orderedPoints = soup.GetAllOrderedPairs();
-
-        var count = 0;
-        foreach (var points in orderedPoints)
-        {
-            foreach (var point in points)
-            {
-                Debug.DrawLine(point, point - Vector3.up * count * 2, Color.cyan, 100.0f);
-                count++;
-            }
-        }
-        */
     }
 
     public void Render(BuildingsRender buildingsRender)
@@ -106,8 +46,6 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
         highest = Building.GetHighestPoint(Map.TerrainData) + 0.2f;
         lowest = Building.GetLowestPoint(Map.TerrainData) - 0.2f;
 
-        //var wallPath = new List<lipperLib.IntPoint>();
-        //var wallSoup = new PolygonSoup();
         var buildingWall = new BuildingWalls();
 
         foreach (var position in Building.Positions)
@@ -124,12 +62,9 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
                 {
                     var edgePoints = tile.GetEdgeCorners(i);
                     buildingWall.Edges.AddPair(edgePoints);
-                    //Debug.DrawLine(edgePoints.V1, edgePoints.V2, Color.red, 100.0f);
 
                     surrounded = false;
                     RenderDownwall(tile, highest, highest - 1.0f, i);
-                    //RenderUpwardWall(tile, 0.0f, highest + 4.0f, highest, i, false);
-                    //RenderUpwardWall(tile, 0.0f, highest + 4.0f, highest, i, true);
                 }
             }
             
@@ -143,26 +78,9 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
         }
 
         buildingWall.OffsetWalls(-2.0f, highest);
+        RenderPoints(buildingWall.Points, false);
+        //buildingWall.OffsetWalls(-2.0f, highest);
         RenderPoints(buildingWall.Points, true);
-
-        foreach (var path in buildingWall.Points)
-        {
-            for (var i = 0; i < path.Count - 1; i++)
-            {
-                vertices.Add(path[i]);
-                vertices.Add(path[i] + Vector3.up * 4);
-                vertices.Add(path[i + 1]);
-                
-                vertices.Add(path[i + 1]);
-                vertices.Add(path[i] + Vector3.up * 4);
-                vertices.Add(path[i + 1] + Vector3.up * 4);
-
-                for (var t = 0; t < 6; t ++)
-                {
-                    triangles.Add(triangles.Count);
-                }
-            }
-        }
 
         var mesh = new Mesh();
         mesh.vertices = vertices.ToArray();
