@@ -79,7 +79,7 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
 
         buildingWall.OffsetWalls(-2.0f, highest);
         RenderPoints(buildingWall.Points, false);
-        //buildingWall.OffsetWalls(-2.0f, highest);
+        buildingWall.OffsetWalls(-2.5f, highest);
         RenderPoints(buildingWall.Points, true);
 
         var mesh = new Mesh();
@@ -212,6 +212,7 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
     public class PolygonSoup
     {
         public List<Vector3Pair> Pairs = new List<Vector3Pair>();
+        private List<Vector3Pair> pairList;
 
         public void AddPair(Vector3Pair pair)
         {
@@ -224,9 +225,11 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
 
         public List<List<Vector3>> GetAllOrderedPoints()
         {
+            pairList = new List<Vector3Pair>(Pairs);
+
             var result = new List<List<Vector3>>();
 
-            while (Pairs.Count > 0)
+            while (pairList.Count > 0)
             {
                 result.Add(GetOrderedPairs());
             }
@@ -254,8 +257,8 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
 
         private Vector3Pair PopPair()
         {
-            var result = Pairs[Pairs.Count - 1];
-            Pairs.RemoveAt(Pairs.Count - 1);
+            var result = pairList[pairList.Count - 1];
+            pairList.RemoveAt(pairList.Count - 1);
             return result;
         }
 
@@ -282,13 +285,13 @@ public class BuildingHouseRender : MonoBehaviour, IBuildingRender
 
         private bool FindConnectingPoint(Vector3 point, ref Vector3 result)
         {
-            for (var i = 0; i < Pairs.Count; i++)
+            for (var i = 0; i < pairList.Count; i++)
             {
-                var pair = Pairs[i];
+                var pair = pairList[i];
                 if (pair.V1 == point)
                 {
                     result = pair.V2;
-                    Pairs.RemoveAt(i);
+                    pairList.RemoveAt(i);
                     return true;
                 }
             }
