@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class Building
 {
     public List<Vector2Int> Positions = new List<Vector2Int>();
+    public List<BuildingFloor> Floors = new List<BuildingFloor>();
 
     public string Type = "road";
 

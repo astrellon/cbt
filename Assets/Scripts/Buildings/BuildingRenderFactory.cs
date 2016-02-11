@@ -15,6 +15,10 @@ public class BuildingRenderFactory
         {
             result = obj.AddComponent<BuildingHouseRender>();
         }
+        else if (building.Type == "generic")
+        {
+            result = obj.AddComponent<BuildingGeneric>();
+        }
 
         if (result != null)
         {
