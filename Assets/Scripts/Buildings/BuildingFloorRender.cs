@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -25,6 +26,9 @@ public class BuildingFloorRender : MonoBehaviour
 
         var floorTilesObj = RenderFloorTiles(buildingsRender);
         floorTilesObj.transform.parent = transform;
+
+        var wallObj = RenderWalls(buildingsRender);
+        wallObj.transform.parent = transform;
         
         var transPos = MatchHighest(transform.localPosition, Floor.BaseHeight);
         gameObject.transform.localPosition = transPos;
@@ -87,7 +91,7 @@ public class BuildingFloorRender : MonoBehaviour
     private GameObject RenderWalls(BuildingsRender buildingsRender)
     {
         var wallObj = new GameObject();
-        wallObj.name = "Tiles";
+        wallObj.name = "Walls";
 
         var meshFilter = wallObj.AddComponent<MeshFilter>();
         var meshRenderer = wallObj.AddComponent<MeshRenderer>();
@@ -101,6 +105,16 @@ public class BuildingFloorRender : MonoBehaviour
 
         vertices = new List<Vector3>();
         triangles = new List<int>();
+
+        var buildingWalls = new PolygonSoup();
+
+        foreach (var edge in Floor.WallEdges)
+        {
+            buildingWalls.AddPair(edge);
+        }
+        
+        var offsetPoints = buildingWalls.Offset(-0.5f, 0.0f);
+        RenderPoints(offsetPoints, false);
         
         /*
         foreach (var position in Floor.WallEdges)
@@ -130,5 +144,46 @@ public class BuildingFloorRender : MonoBehaviour
     public static Vector3 MatchHighest(Vector3 input, float highest)
     {
         return new Vector3(input.x, highest, input.z);
+    }
+    
+    private void RenderPoints(List<List<Vector3>> points, bool backwards)
+    {
+        foreach (var path in points)
+        {
+            if (backwards)
+            {
+                for (var i = path.Count - 1; i > 0; i--)
+                {
+                    RenderPointPair(path[i], path[i - 1], Vector3.up * 4);
+                }
+
+                RenderPointPair(path.First(), path.Last(), Vector3.up * 4);
+            }
+            else
+            {
+                for (var i = 0; i < path.Count - 1; i++)
+                {
+                    RenderPointPair(path[i], path[i + 1], Vector3.up * 4);
+                }
+
+                RenderPointPair(path.Last(), path.First(), Vector3.up * 4);
+            }
+        }
+    }
+
+    private void RenderPointPair(Vector3 first, Vector3 second, Vector3 offset)
+    {
+        vertices.Add(first);
+        vertices.Add(first + offset);
+        vertices.Add(second);
+
+        vertices.Add(second);
+        vertices.Add(first + offset);
+        vertices.Add(second + offset);
+
+        for (var t = 0; t < 6; t ++)
+        {
+            triangles.Add(triangles.Count);
+        }
     }
 }
