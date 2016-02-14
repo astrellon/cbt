@@ -35,7 +35,7 @@ public class GameMapRender : MonoBehaviour
         building.Positions.Add(new Vector2Int(14, 5));
         building.Positions.Add(new Vector2Int(15, 5));
         building.RemoveTrees(Map.TerrainData);
-        Map.Buildings.Add(building);
+        //Map.Buildings.Add(building);
         
         building = new Building();
         //building.Positions.Add(new Vector2Int(6, 2));
@@ -62,7 +62,7 @@ public class GameMapRender : MonoBehaviour
         building.Positions.Add(new Vector2Int(12, 6));
         building.Type = "house";
         building.RemoveTrees(Map.TerrainData);
-        Map.Buildings.Add(building);
+        //Map.Buildings.Add(building);
         
         building = new Building();
         /*
@@ -83,8 +83,8 @@ public class GameMapRender : MonoBehaviour
         floor.Positions.Add(new Vector2Int(15, 3));
         floor.Positions.Add(new Vector2Int(16, 3));
 
-        floor.WallEdges.Add(new WallEdge(new Vector2Int(13, 2), 0));
 		floor.WallEdges.Add(new WallEdge(new Vector2Int(13, 2), 1));
+		floor.WallEdges.Add(new WallEdge(new Vector2Int(13, 2), 2));
 
         //floor.WallEdges.
         floor.BaseHeight = 20.0f;
@@ -98,15 +98,17 @@ public class GameMapRender : MonoBehaviour
 
         Init(Map);
 
-        /*
         var path = new List<ClipperLib.IntPoint>();
         path.Add(new ClipperLib.IntPoint(-3000, 0));
+        path.Add(new ClipperLib.IntPoint(1000, 0));
+        path.Add(new ClipperLib.IntPoint(1000, 4000));
+        path.Add(new ClipperLib.IntPoint(1000, 0));
         path.Add(new ClipperLib.IntPoint(5000, 0));
         //path.Add(new ClipperLib.IntPoint(1000, -3500));
         //path.Add(new ClipperLib.IntPoint(-3000, 0));
         
         var co = new ClipperLib.ClipperOffset();
-        co.AddPath(path, ClipperLib.JoinType.jtSquare, ClipperLib.EndType.etClosedLine);
+        co.AddPath(path, ClipperLib.JoinType.jtSquare, ClipperLib.EndType.etOpenSquare);
 
         var result = new List<List<ClipperLib.IntPoint>>();
         co.Execute(ref result, 500);
@@ -124,7 +126,6 @@ public class GameMapRender : MonoBehaviour
                 Debug.DrawLine(point, point + Vector3.up * 3, Color.red, 100);
             }
         }
-        */
     }
 	
 	// Update is called once per frame

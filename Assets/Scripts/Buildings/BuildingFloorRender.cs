@@ -118,7 +118,7 @@ public class BuildingFloorRender : MonoBehaviour
         }
         
         Debug.Log("Num building points: " + buildingWalls.Pairs.Count);
-        var offsetPoints = buildingWalls.Offset(-0.5f, 0.0f);
+        var offsetPoints = buildingWalls.Offset(0.5f, 0.0f);
         Debug.Log("Num offset points: " + offsetPoints.Count);
         RenderPoints(offsetPoints, false);
         RenderPoints(offsetPoints, true);

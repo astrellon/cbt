@@ -5,6 +5,35 @@ using System.Collections.Generic;
 
 public class PolygonSoup
 {
+    public class Path
+    {
+        public readonly List<Vector3> Points = new List<Vector3>();
+        public bool IsClosedLoop {get; private set;}
+
+        public void CheckIfClosedLoop()
+        {
+            if (Points.First() == Points.Last())
+            {
+                Points.RemoveAt(Points.Count - 1);
+                IsClosedLoop = true;
+            }
+        }
+    }
+    public class PathInt
+    {
+        public readonly List<ClipperLib.IntPoint> Points = new List<ClipperLib.IntPoint>();
+        public readonly bool IsClosedLoop;
+
+        public PathInt (Path path)
+        {
+            foreach (var point in path.Points)
+            {
+                Points.Add(new ClipperLib.IntPoint(point.x * 1000.0f, point.z * 1000.0f));
+            }
+            IsClosedLoop = path.IsClosedLoop;
+        }
+    }
+
     public List<Vector3Pair> Pairs = new List<Vector3Pair>();
     private List<Vector3Pair> pairList;
 
@@ -17,11 +46,11 @@ public class PolygonSoup
         Pairs.AddRange(pairs);
     }
 
-    public List<List<Vector3>> GetAllOrderedPoints()
+    public List<Path> GetAllOrderedPoints()
     {
         pairList = new List<Vector3Pair>(Pairs);
 
-        var result = new List<List<Vector3>>();
+        var result = new List<Path>();
 
         while (pairList.Count > 0)
         {
@@ -30,20 +59,15 @@ public class PolygonSoup
 
         return result;
     }
-    public List<List<ClipperLib.IntPoint>> GetAllOrderedIntPoints()
+    public List<PathInt> GetAllOrderedIntPoints()
     {
         var orderedPoints = GetAllOrderedPoints();
 
-        var result = new List<List<ClipperLib.IntPoint>>();
+        var result = new List<PathInt>();
 
         foreach (var points in orderedPoints)
         {
-            var resultPoints = new List<ClipperLib.IntPoint>();
-            result.Add(resultPoints);
-            foreach (var point in points)
-            {
-                resultPoints.Add(new ClipperLib.IntPoint(point.x * 1000.0f, point.z * 1000.0f));
-            }
+            result.Add(new PathInt(points));
         }
 
         return result;
@@ -56,12 +80,12 @@ public class PolygonSoup
         return result;
     }
 
-    private List<Vector3> GetOrderedPairs()
+	private Path GetOrderedPairs()
     {
-        var result = new List<Vector3>();
+        var result = new Path();
         var start = PopPair();
-        result.Add(start.V1);
-        result.Add(start.V2);
+        result.Points.Add(start.V1);
+        result.Points.Add(start.V2);
 
         var currentPoint = start.V2;
         var foundConnectingPoint = true;
@@ -70,9 +94,11 @@ public class PolygonSoup
             foundConnectingPoint = FindConnectingPoint(currentPoint, ref currentPoint);
             if (foundConnectingPoint)
             {
-                result.Add(currentPoint);
+                result.Points.Add(currentPoint);
             }
         }
+
+        result.CheckIfClosedLoop();
 
         return result;
     }
@@ -88,6 +114,12 @@ public class PolygonSoup
                 pairList.RemoveAt(i);
                 return true;
             }
+            if (pair.V2 == point)
+            {
+                result = pair.V1;
+                pairList.RemoveAt(i);
+                return true;
+            }
         }
         return false;
     }
@@ -95,15 +127,23 @@ public class PolygonSoup
     public List<List<Vector3>> Offset(float amount, float height)
     {
         var orderedPoints = GetAllOrderedIntPoints();
-        var co = new ClipperLib.ClipperOffset();
-		co.AddPaths(orderedPoints, ClipperLib.JoinType.jtSquare, ClipperLib.EndType.etOpenSquare);
 
-        var results = new List<List<ClipperLib.IntPoint>>();
-        co.Execute(ref results, (int)(amount * 1000.0f));
+        var result = new List<List<Vector3>>();
 
-        return results.Select(
-                xs => xs.Select(
-                    x => new Vector3((float)x.X / 1000.0f, height, (float)x.Y / 1000.0f)).ToList()).ToList();
+        foreach (var path in orderedPoints)
+        {
+            var co = new ClipperLib.ClipperOffset();
+            var endType = path.IsClosedLoop ? ClipperLib.EndType.etClosedLine : ClipperLib.EndType.etOpenSquare;
+            co.AddPath(path.Points, ClipperLib.JoinType.jtSquare, endType);
 
+            var results = new List<List<ClipperLib.IntPoint>>();
+            co.Execute(ref results, (int)(amount * 1000.0f));
+
+            result.AddRange(results.Select(
+                    xs => xs.Select(
+                        x => new Vector3((float)x.X / 1000.0f, height, (float)x.Y / 1000.0f)).ToList()));
+        }
+
+        return result;
     }
 }
