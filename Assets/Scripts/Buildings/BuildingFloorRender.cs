@@ -110,11 +110,18 @@ public class BuildingFloorRender : MonoBehaviour
 
         foreach (var edge in Floor.WallEdges)
         {
-            buildingWalls.AddPair(edge);
+            var tile = Floor.Map.TerrainData.GetTile(edge.TilePosition);
+            var edgePair = tile.GetEdgeCorners(edge.EdgeNumber);
+            buildingWalls.AddPair(edgePair);
+            Debug.DrawLine(edgePair.V1, edgePair.V1 + Vector3.up * 4, Color.red, 100.0f);
+            Debug.DrawLine(edgePair.V2, edgePair.V2 + Vector3.up * 4, Color.red, 100.0f);
         }
         
+        Debug.Log("Num building points: " + buildingWalls.Pairs.Count);
         var offsetPoints = buildingWalls.Offset(-0.5f, 0.0f);
+        Debug.Log("Num offset points: " + offsetPoints.Count);
         RenderPoints(offsetPoints, false);
+        RenderPoints(offsetPoints, true);
         
         /*
         foreach (var position in Floor.WallEdges)

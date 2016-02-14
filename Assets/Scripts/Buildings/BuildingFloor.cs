@@ -6,7 +6,7 @@ public class BuildingFloor
 {
     public GameMap Map;
     public List<Vector2Int> Positions = new List<Vector2Int>();
-    public List<Vector3Pair> WallEdges = new List<Vector3Pair>();
+    public List<WallEdge> WallEdges = new List<WallEdge>();
     public float FloorHeight;
     public float Height;
     public float BaseHeight;

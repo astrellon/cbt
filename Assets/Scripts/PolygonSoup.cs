@@ -96,7 +96,7 @@ public class PolygonSoup
     {
         var orderedPoints = GetAllOrderedIntPoints();
         var co = new ClipperLib.ClipperOffset();
-        co.AddPaths(orderedPoints, ClipperLib.JoinType.jtSquare, ClipperLib.EndType.etClosedPolygon);
+		co.AddPaths(orderedPoints, ClipperLib.JoinType.jtSquare, ClipperLib.EndType.etOpenSquare);
 
         var results = new List<List<ClipperLib.IntPoint>>();
         co.Execute(ref results, (int)(amount * 1000.0f));

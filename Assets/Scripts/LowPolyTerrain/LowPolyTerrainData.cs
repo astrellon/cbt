@@ -28,6 +28,14 @@ public class LowPolyTerrainData
         TileTypes.Add(Data[0].Type);
     }
 
+    public LowPolyTerrainTile GetTile(Vector2Int pos)
+    {
+        if (pos.x < 0 || pos.x >= Width || pos.y < 0 || pos.y >= Height)
+        {
+            return LowPolyTerrainTile.NullTile;
+        }
+        return Data[pos.y * Width + pos.x];
+    }
     public LowPolyTerrainTile GetTile(int x, int y)
     {
         if (x < 0 || x >= Width || y < 0 || y >= Height)

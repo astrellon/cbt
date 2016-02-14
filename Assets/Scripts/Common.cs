@@ -62,12 +62,25 @@ public struct Vector2Int
 [System.Serializable]
 public struct Vector3Pair
 {
-    public Vector3 V1;
-    public Vector3 V2;
+    public readonly Vector3 V1;
+    public readonly Vector3 V2;
 
     public Vector3Pair(Vector3 v1, Vector3 v2)
     {
         V1 = v1;
         V2 = v2;
+    }
+}
+
+[System.Serializable]
+public struct WallEdge
+{
+    public readonly Vector2Int TilePosition;
+    public readonly int EdgeNumber;
+
+    public WallEdge(Vector2Int tilePosition, int edgeNumber)
+    {
+        TilePosition = tilePosition;
+        EdgeNumber = edgeNumber;
     }
 }

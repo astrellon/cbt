@@ -82,6 +82,11 @@ public class GameMapRender : MonoBehaviour
         floor.Positions.Add(new Vector2Int(14, 3));
         floor.Positions.Add(new Vector2Int(15, 3));
         floor.Positions.Add(new Vector2Int(16, 3));
+
+        floor.WallEdges.Add(new WallEdge(new Vector2Int(13, 2), 0));
+		floor.WallEdges.Add(new WallEdge(new Vector2Int(13, 2), 1));
+
+        //floor.WallEdges.
         floor.BaseHeight = 20.0f;
         floor.FloorHeight = 0.3f;
         floor.Map = Map;
