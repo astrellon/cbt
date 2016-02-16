@@ -65,15 +65,7 @@ public class GameMapRender : MonoBehaviour
         //Map.Buildings.Add(building);
         
         building = new Building();
-        /*
-        building.Positions.Add(new Vector2Int(13, 2));
-        building.Positions.Add(new Vector2Int(14, 2));
-        building.Positions.Add(new Vector2Int(15, 2));
-        building.Positions.Add(new Vector2Int(16, 2));
-        building.Positions.Add(new Vector2Int(14, 3));
-        building.Positions.Add(new Vector2Int(15, 3));
-        building.Positions.Add(new Vector2Int(16, 3));
-        */
+        
         var floor = new BuildingFloor();
         floor.Positions.Add(new Vector2Int(13, 2));
         floor.Positions.Add(new Vector2Int(14, 2));
@@ -83,14 +75,49 @@ public class GameMapRender : MonoBehaviour
         floor.Positions.Add(new Vector2Int(15, 3));
         floor.Positions.Add(new Vector2Int(16, 3));
 
-		floor.WallEdges.Add(new WallEdge(new Vector2Int(13, 2), 1));
 		floor.WallEdges.Add(new WallEdge(new Vector2Int(13, 2), 2));
+		floor.WallEdges.Add(new WallEdge(new Vector2Int(13, 2), 0));
 
-        //floor.WallEdges.
         floor.BaseHeight = 20.0f;
-        floor.FloorHeight = 0.3f;
+        floor.FloorHeight = 0.2f;
+        floor.Height = 10.0f;
+        floor.Map = Map;
+
+        building.Floors.Add(floor);
+        
+        floor = new BuildingFloor();
+        floor.Positions.Add(new Vector2Int(14, 2));
+        floor.Positions.Add(new Vector2Int(15, 2));
+        floor.Positions.Add(new Vector2Int(16, 2));
+        floor.Positions.Add(new Vector2Int(14, 3));
+        floor.Positions.Add(new Vector2Int(15, 3));
+        floor.Positions.Add(new Vector2Int(16, 3));
+
+		floor.WallEdges.Add(new WallEdge(new Vector2Int(14, 2), 2));
+		floor.WallEdges.Add(new WallEdge(new Vector2Int(15, 2), 2));
+
+        floor.BaseHeight = 30.0f;
+        floor.FloorHeight = 0.2f;
+        floor.Height = 10.0f;
         floor.Map = Map;
         building.Floors.Add(floor);
+
+        floor = new BuildingFloor();
+        floor.Positions.Add(new Vector2Int(15, 4));
+        floor.Positions.Add(new Vector2Int(16, 4));
+        floor.Positions.Add(new Vector2Int(17, 4));
+        floor.Positions.Add(new Vector2Int(17, 3));
+        floor.Positions.Add(new Vector2Int(18, 3));
+
+		floor.WallEdges.Add(new WallEdge(new Vector2Int(15, 4), 0));
+		floor.WallEdges.Add(new WallEdge(new Vector2Int(16, 4), 0));
+
+        floor.BaseHeight = 22.0f;
+        floor.FloorHeight = 0.2f;
+        floor.Height = 10.0f;
+        floor.Map = Map;
+        building.Floors.Add(floor);
+
         building.Type = "generic";
 
         building.RemoveTrees(Map.TerrainData);
@@ -98,17 +125,19 @@ public class GameMapRender : MonoBehaviour
 
         Init(Map);
 
+        /*
         var path = new List<ClipperLib.IntPoint>();
         path.Add(new ClipperLib.IntPoint(-3000, 0));
         path.Add(new ClipperLib.IntPoint(1000, 0));
-        path.Add(new ClipperLib.IntPoint(1000, 4000));
+        path.Add(new ClipperLib.IntPoint(6000, 3000));
+        path.Add(new ClipperLib.IntPoint(6000, -3000));
         path.Add(new ClipperLib.IntPoint(1000, 0));
-        path.Add(new ClipperLib.IntPoint(5000, 0));
+        //path.Add(new ClipperLib.IntPoint(5000, 0));
         //path.Add(new ClipperLib.IntPoint(1000, -3500));
         //path.Add(new ClipperLib.IntPoint(-3000, 0));
         
         var co = new ClipperLib.ClipperOffset();
-        co.AddPath(path, ClipperLib.JoinType.jtSquare, ClipperLib.EndType.etOpenSquare);
+        co.AddPath(path, ClipperLib.JoinType.jtSquare, ClipperLib.EndType.etClosedLine);
 
         var result = new List<List<ClipperLib.IntPoint>>();
         co.Execute(ref result, 500);
@@ -126,6 +155,7 @@ public class GameMapRender : MonoBehaviour
                 Debug.DrawLine(point, point + Vector3.up * 3, Color.red, 100);
             }
         }
+        */
     }
 	
 	// Update is called once per frame

@@ -8,6 +8,6 @@ public class BuildingFloor
     public List<Vector2Int> Positions = new List<Vector2Int>();
     public List<WallEdge> WallEdges = new List<WallEdge>();
     public float FloorHeight;
-    public float Height;
-    public float BaseHeight;
+    public float Height = 10.0f;
+    public float BaseHeight = 0.2f;
 }

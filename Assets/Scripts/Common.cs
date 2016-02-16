@@ -62,6 +62,8 @@ public struct Vector2Int
 [System.Serializable]
 public struct Vector3Pair
 {
+    public static readonly Vector3Pair Zero = new Vector3Pair(Vector3.zero, Vector3.zero);
+
     public readonly Vector3 V1;
     public readonly Vector3 V2;
 

@@ -33,6 +33,109 @@ public class PolygonSoup
             IsClosedLoop = path.IsClosedLoop;
         }
     }
+    public class Line
+    {
+        public readonly List<Vector3Pair> Segments = new List<Vector3Pair>();
+        public bool IsLoop { get; private set; }
+
+        public void AddPair(Vector3Pair pair)
+        {
+            Segments.Add(pair);
+        }
+
+        public void ProcessSegments()
+        {
+            if (Segments.Count() == 0)
+            {
+                return;
+            }
+
+            var visited = new HashSet<Vector3Pair>();
+            var result = new List<Vector3Pair>();
+            var afterStart = new List<Vector3Pair>();
+            var beforeStart = new List<Vector3Pair>();
+
+            var currentSegment = Segments[0];
+            afterStart.Add(currentSegment);
+            visited.Add(currentSegment);
+
+            for (var i = 0; i < Segments.Count; i++)
+            {
+                Vector3Pair connected = Vector3Pair.Zero;
+                var foundConnected = FindConnectingPoint(currentSegment, false, ref connected);
+                if (!foundConnected)
+                {
+                    continue;
+                }
+
+                if (visited.Contains(connected))
+                {
+                    IsLoop = true;
+                    continue;
+                }
+
+                afterStart.Add(connected);
+                currentSegment = connected;
+            }
+            
+            currentSegment = Segments[0];
+            for (var i = Segments.Count - 1; i >= 0; i--)
+            {
+                Vector3Pair connected = Vector3Pair.Zero;
+                var foundConnected = FindConnectingPoint(currentSegment, true, ref connected);
+                if (!foundConnected)
+                {
+                    continue;
+                }
+
+                if (visited.Contains(connected))
+                {
+                    IsLoop = true;
+                    continue;
+                }
+            }
+        }
+
+        private IEnumerable<Vector3Pair> GetSegments(bool backwards)
+        {
+            if (backwards)
+            {
+                for (var i = Segments.Count() - 1; i >= 0; i--)
+                {
+                    yield return Segments[i];
+                }
+            }
+            else
+            {
+                for (var i = 0; i < Segments.Count(); i++)
+                {
+                    yield return Segments[i];
+                }
+            }
+        }
+
+        private bool FindConnectingPoint(Vector3Pair pair, bool reverseCheck, ref Vector3Pair result)
+        {
+            /*
+            foreach (var segment in GetSegments(reverseCheck))
+            {
+                if (segment == pair)
+                {
+                    continue;
+                }
+
+                if (pair.V1 == segment.V1 || pair.V1 == segment.V2 ||
+                    pair.V2 == segment.V1 || pair.V2 == semgnet.V2)
+                {
+                    result = segment;
+                    return true;
+                }
+            }
+            */
+
+            return false;
+        }
+    }
 
     public List<Vector3Pair> Pairs = new List<Vector3Pair>();
     private List<Vector3Pair> pairList;
@@ -108,20 +211,38 @@ public class PolygonSoup
         for (var i = 0; i < pairList.Count; i++)
         {
             var pair = pairList[i];
-            if (pair.V1 == point)
+            var connectResult = IsConnectingFirst(pair, point);
+            if (connectResult == 0)
+            {
+                break;
+            }
+
+            if (connectResult == 1)
             {
                 result = pair.V2;
-                pairList.RemoveAt(i);
-                return true;
             }
-            if (pair.V2 == point)
+            else if (connectResult == 2)
             {
                 result = pair.V1;
-                pairList.RemoveAt(i);
-                return true;
             }
+
+            pairList.RemoveAt(i);
+            return true;
         }
         return false;
+    }
+
+    private int IsConnectingFirst(Vector3Pair pair, Vector3 point)
+    {
+        if (pair.V1 == point)
+        {
+            return 1;
+        }
+        if (pair.V2 == point)
+        {
+            return 2;
+        }
+        return 0;
     }
 
     public List<List<Vector3>> Offset(float amount, float height)
@@ -132,6 +253,11 @@ public class PolygonSoup
 
         foreach (var path in orderedPoints)
         {
+            Debug.Log("New path");
+            foreach (var intpoint in path.Points)
+            {
+                Debug.Log("Ordered point: " + intpoint.X + ", " + intpoint.Y);
+            }
             var co = new ClipperLib.ClipperOffset();
             var endType = path.IsClosedLoop ? ClipperLib.EndType.etClosedLine : ClipperLib.EndType.etOpenSquare;
             co.AddPath(path.Points, ClipperLib.JoinType.jtSquare, endType);

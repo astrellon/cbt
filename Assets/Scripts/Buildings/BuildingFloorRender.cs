@@ -106,33 +106,17 @@ public class BuildingFloorRender : MonoBehaviour
         vertices = new List<Vector3>();
         triangles = new List<int>();
 
-        var buildingWalls = new PolygonSoup();
-
         foreach (var edge in Floor.WallEdges)
         {
             var tile = Floor.Map.TerrainData.GetTile(edge.TilePosition);
             var edgePair = tile.GetEdgeCorners(edge.EdgeNumber);
-            buildingWalls.AddPair(edgePair);
-            Debug.DrawLine(edgePair.V1, edgePair.V1 + Vector3.up * 4, Color.red, 100.0f);
-            Debug.DrawLine(edgePair.V2, edgePair.V2 + Vector3.up * 4, Color.red, 100.0f);
+            var point1 = MatchHighest(edgePair.V1, 0.0f);
+            var point2 = MatchHighest(edgePair.V2, 0.0f);
+            
+            RenderPointPair(point1, point2, Vector3.up * Floor.Height);
+            RenderPointPair(point2, point1, Vector3.up * Floor.Height);
         }
         
-        Debug.Log("Num building points: " + buildingWalls.Pairs.Count);
-        var offsetPoints = buildingWalls.Offset(0.5f, 0.0f);
-        Debug.Log("Num offset points: " + offsetPoints.Count);
-        RenderPoints(offsetPoints, false);
-        RenderPoints(offsetPoints, true);
-        
-        /*
-        foreach (var position in Floor.WallEdges)
-        {
-            var tile = Floor.Map.TerrainData.GetTile(position.x, position.y);
-
-            RenderFloorTile(tile, Floor.FloorHeight, false);
-            RenderFloorTile(tile, 0.0f, true);
-        }
-        */
-
         var mesh = new Mesh();
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
