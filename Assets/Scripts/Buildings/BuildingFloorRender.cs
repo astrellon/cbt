@@ -108,8 +108,7 @@ public class BuildingFloorRender : MonoBehaviour
 
         foreach (var edge in Floor.WallEdges)
         {
-            var tile = Floor.Map.TerrainData.GetTile(edge.TilePosition);
-            var edgePair = tile.GetEdgeCorners(edge.EdgeNumber);
+            var edgePair = edge.GetPoints(Floor.Map);
             var point1 = MatchHighest(edgePair.V1, 0.0f);
             var point2 = MatchHighest(edgePair.V2, 0.0f);
             

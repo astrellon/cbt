@@ -79,10 +79,26 @@ public struct WallEdge
 {
     public readonly Vector2Int TilePosition;
     public readonly int EdgeNumber;
+    public readonly int WallLength;
 
-    public WallEdge(Vector2Int tilePosition, int edgeNumber)
+    public WallEdge(Vector2Int tilePosition, int edgeNumber, int wallLength = 1)
     {
         TilePosition = tilePosition;
         EdgeNumber = edgeNumber;
+        WallLength = wallLength;
+    }
+
+    public Vector3Pair GetPoints(GameMap map)
+    {
+        var tile = map.TerrainData.GetTile(TilePosition);
+        var edgePair = tile.GetEdgeCorners(EdgeNumber);
+
+        if (WallLength == 1)
+        {
+            return edgePair;
+        }
+
+        var endPoint = (edgePair.V2 - edgePair.V1) * WallLength + edgePair.V1;
+        return new Vector3Pair(edgePair.V1, endPoint);
     }
 }

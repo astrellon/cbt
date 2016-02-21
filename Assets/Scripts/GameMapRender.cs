@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using TriangleNet.Geometry;
 
 public class GameMapRender : MonoBehaviour 
 {
@@ -111,6 +112,7 @@ public class GameMapRender : MonoBehaviour
 
 		floor.WallEdges.Add(new WallEdge(new Vector2Int(15, 4), 0));
 		floor.WallEdges.Add(new WallEdge(new Vector2Int(16, 4), 0));
+		floor.WallEdges.Add(new WallEdge(new Vector2Int(17, 4), 1, 2));
 
         floor.BaseHeight = 22.0f;
         floor.FloorHeight = 0.2f;
@@ -124,6 +126,72 @@ public class GameMapRender : MonoBehaviour
         Map.Buildings.Add(building);
 
         Init(Map);
+
+        var geometry = new InputGeometry();
+
+        //it is necessary to put a border around all the points in order to get triangulation to work correctly when holes are used
+        var border = new List<Point>();
+        border.Add(new Point(10, 6));
+        border.Add(new Point(10, -6));
+        border.Add(new Point(-10, -6));
+        border.Add(new Point(-10, 6));
+        geometry.AddRing(border);
+
+        border = new List<Point>();
+        border.Add(new Point(7, 4));
+        border.Add(new Point(7, 2));
+        border.Add(new Point(5, 2));
+        border.Add(new Point(5, 4));
+        geometry.AddRingAsHole(border);
+        
+        border = new List<Point>();
+        border.Add(new Point(3, 2));
+        border.Add(new Point(3, -6));
+        border.Add(new Point(-3, -6));
+        border.Add(new Point(-3, 2));
+        geometry.AddRingAsHole(border);
+
+        var meshRepresentation = new TriangleNet.Mesh();
+        meshRepresentation.Triangulate(geometry);
+
+        var triangleIndex = 0;
+        var vertices = new List<Vector3>(meshRepresentation.triangles.Count * 3);
+        var triangleIndices = new List<int>(meshRepresentation.triangles.Count * 3);
+
+        foreach(var pair in meshRepresentation.triangles)
+        {
+            var triangle = pair.Value;
+
+            var vertex0 = triangle.GetVertex(0);
+            var vertex1 = triangle.GetVertex(1);
+            var vertex2 = triangle.GetVertex(2);
+
+			var p0 = new Vector3( vertex0.x, vertex0.y, 0 );
+			var p1 = new Vector3( vertex1.x, vertex1.y, 0 );
+			var p2 = new Vector3( vertex2.x, vertex2.y, 0 );
+
+            vertices.Add(p0);
+            vertices.Add(p1);
+            vertices.Add(p2);
+
+            triangleIndices.Add(triangleIndex + 2);
+            triangleIndices.Add(triangleIndex + 1);
+            triangleIndices.Add(triangleIndex);
+
+            triangleIndex += 3;
+        }
+        
+        var mesh = new Mesh();
+        mesh.vertices = vertices.ToArray();
+        mesh.triangles = triangleIndices.ToArray();
+        mesh.RecalculateNormals();
+
+        var newObj = new GameObject();
+        newObj.name = "Test";
+        newObj.transform.parent = transform;
+        newObj.AddComponent<MeshFilter>();
+        newObj.AddComponent<MeshRenderer>();
+        newObj.GetComponent<MeshFilter>().mesh = mesh;
 
         /*
         var path = new List<ClipperLib.IntPoint>();
